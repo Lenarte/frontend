@@ -1,31 +1,23 @@
-import "./App.css"
-import Header from "./Header";
+import React from "react";
+import { Routes, Route } from "react-router-dom";
+import Layout from "./layout/Layout";
+import Home from "./paginas/Home";
+import Pagina2 from "./paginas/Pagina2";
+import Pagina3 from "./paginas/Pagina3";
+import Cadastros from "./paginas/Cadastros";
 
 function App() {
     return (
-        <div>
-            <Header />
-            <nav>
-                <ul>
-                    <li>home</li>
-                    <li>Pagina2</li>
-                    <li>Pagina3</li>
-                </ul>
-            </nav>
-            <aside>
-                <ul>
-                    <li>util</li>
-                    <li>util</li>
-                    <li>util</li>
-                </ul>
-            </aside>
-            <main>
-                <p>Conteudo principal da pagina</p>
-            </main>
-            <footer>
-                <h3>Pagina principal do React</h3>
-            </footer>  
-        </div>
+        <>
+            <Routes>
+                <Route path="/" element={<Layout><Home /></Layout>} />
+
+                <Route path="/cadastros" element={<Layout> <Cadastros /> </Layout>} />
+
+                <Route path="/pagina2" element={<Layout><Pagina2 /></Layout>} />
+                <Route path="/pagina3" element={<Layout><Pagina3 /></Layout>} />
+            </Routes>
+        </>
     );
 }
 
