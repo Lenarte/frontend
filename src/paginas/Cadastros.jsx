@@ -5,7 +5,24 @@ import { useState, useEffect } from "react";
 
 function Cadastros() {
 
+    const [cliente, setCliente] = useState(null);
+
     const [clientes, setClientes] = useState([]);
+
+    function novoCliente(){
+        setCliente(
+            {
+                nome: "",
+                cpf: "",
+                telefone: "",
+                email: ""
+            }
+        );
+    }
+
+    function cancelar(){
+        setCliente(null);
+    }
 
     function getClientes() {
         axios.get("http://localhost:5103/clientes")
@@ -29,20 +46,34 @@ function Cadastros() {
                 <label for="email">E-mail</label>
                 <input type="text" id="email" name="email" />
                 <button>Salvar</button>
+                <button onClick={cancelar}>Cancelar</button>
             </form>
         );
     }
 
-    function getLinha(id, nome, cpf, telefone, email) {
+    function excluirCliente(id){
+        axios.delete("http://localhost:5103/clientes/" + id).then(
+            () => {
+                getClientes();
+            }
+        );
+    }
+
+
+    function getLinha(cliente) {
         return (
             <tr>
-                <td>{id}</td>
-                <td>{nome}</td>
-                <td>{cpf}</td>
-                <td>{telefone}</td>
-                <td>{email}</td>
+                <td>{cliente.idCliente}</td>
+                <td>{cliente.nome}</td>
+                <td>{cliente.cpf}</td>
+                <td>{cliente.telefone}</td>
+                <td>{cliente.email}</td>
                 <td>
-                    <button>Excluir</button>
+                    <button onClick={
+                        ()=>{
+                            excluirCliente(cliente.idCliente);
+                        }
+                    }>Excluir</button>
                     <button>Editar</button>
                 </td>
             </tr>
@@ -53,7 +84,7 @@ function Cadastros() {
         const linhasDaTabela = [];
         for (let i = 0; i < clientes.length; i++) {
             const cliente = clientes[i];
-            linhasDaTabela[i] = getLinha(cliente.idCliente, cliente.nome, cliente.cpf, cliente.telefone, cliente.email);
+            linhasDaTabela[i] = getLinha(cliente);
         }
         return linhasDaTabela;
     }
@@ -74,13 +105,31 @@ function Cadastros() {
         );
     }
 
+    function refresh(){
+        cancelar();
+        getClientes();
+    }
+
+    function getConteudo(){
+        if(cliente == null){
+
+            return(
+                <>
+                <button onClick={novoCliente}>Novo</button>
+                {getTabela()}
+                </>
+            )
+
+        } else {
+            return getFormulario();
+        }
+    }
 
 
     return (
         <div>
             <h1>Cadastro de clientes</h1>
-            {getFormulario()}
-            {getTabela()}
+            {getConteudo()}
         </div>
 
     );

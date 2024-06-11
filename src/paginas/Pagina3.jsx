@@ -67,7 +67,7 @@ function getFormulario() {
                 <tr>
                     <th>ID PRODUTOS</th>
                     <th>NOME</th>
-                    <th>VALIDADE</th>
+                    <th>VALIDADE EM DIAS</th>
                     <th>PREÇO</th>
                     <th>DESCRICAO</th>
                     <th>Ações</th>
