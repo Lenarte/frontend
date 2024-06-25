@@ -5,7 +5,9 @@ import { useState, useEffect } from "react";
 
 function Cadastros() {
 
+    const [funcionario, setFuncionario] = useState(null);
     const [funcionarios, setFuncionarios] = useState([]);
+
 
     function getFuncionarios() {
         axios.get("http://localhost:5103/funcionarios")
@@ -16,37 +18,108 @@ function Cadastros() {
 
     useEffect(getFuncionarios, []);
 
+    function novoFuncionario() {
+        setFuncionario(
+            {
+                matricula: "",
+                nome: "",
+                cpf: "",
+                telefone: "",
+                cargo: ""
+            }
+        );
+    }
+
+    function refresh() {
+        cancelar();
+        getFuncionarios();
+    }
+
+    function cancelar() {
+        setFuncionario(null);
+    }
+
+    function onChangeFuncionario(campo, valor, id) {
+        funcionario[campo] = valor;
+        setFuncionario({
+            ...funcionario,
+        });
+    }
+
+    function salvarFuncionario() {
+        if (funcionario.idFuncionario) {
+            axios.put("http://localhost:5103/funcionarios/" + funcionario.idFuncionario, funcionario)
+                .then(() => {
+                    refresh();
+                });
+        } else {
+            axios.post("http://localhost:5103/funcionarios", funcionario)
+                .then(() => {
+                    refresh();
+                });
+        }
+    }
 
     function getFormulario() {
         return (
             <form>
-                <label for="name">Matricula Funcionario</label>
-                <input type="text" id="matricula" name="matricula" />
-                <label for="cpf">Nome</label>
-                <input type="text" id="nome" name="nome" multiple />
-                <label for="telefone">CPF</label>
-                <input type="text" id="cpf" name="cpf" />
-                <label for="email">Cargo</label>
-                <input type="text" id="cargo" name="cargo" />
-                <label for="email">Telefone</label>
-                <input type="text" id="telefone" name="telefone" />
-                <button>Salvar</button>
+                <label for="nome">Nome</label>
+                <input type="text" id="nome" name="nome"
+                    value={funcionario.nome}
+                    onChange={(e) => {
+                        onChangeFuncionario(e.target.name, e.target.value, funcionario.idFuncionario);
+                    }}
+                />
+                <label for="cpf">CPF</label>
+                <input type="text" id="cpf" name="cpf"
+                    value={funcionario.cpf}
+                    onChange={(e) => {
+                        onChangeFuncionario(e.target.name, e.target.value, funcionario.idFuncionario);
+                    }}
+                />
+                <label for="telefone">Telefone</label>
+                <input type="text" id="telefone" name="telefone"
+                    value={funcionario.telefone}
+                    onChange={(e) => {
+                        onChangeFuncionario(e.target.name, e.target.value, funcionario.idFuncionario);
+                    }}
+                />
+                <label for="cargo">Cargo</label>
+                <input type="text" id="cargo" name="cargo"
+                    value={funcionario.cargo}
+                    onChange={(e) => {
+                        onChangeFuncionario(e.target.name, e.target.value, funcionario.idFuncionario);
+                    }}
+                />
+                <button onClick={() => { cancelar(); }}>Cancelar</button>
+                <button onClick={() => { salvarFuncionario(); }} >Salvar</button>
             </form>
         );
     }
 
-    function getLinha(idFuncionario, nome, cpf, cargo, telefone, dataAdmissao) {
+    function excluirFuncionario(id){
+        axios.delete("http://localhost:5103/funcionarios/" + id).then(
+            () => {
+                getFuncionarios();
+            }
+        );
+    }
+
+    function editarFuncionario(funcionario) {
+        setFuncionario(funcionario);
+    }
+
+    function getLinha(funcionario) {
         return (
             <tr>
-                <td>{idFuncionario}</td>
-                <td>{nome}</td>
-                <td>{cpf}</td>
-                <td>{cargo}</td>
-                <td>{telefone}</td>
-                <td>{dataAdmissao}</td>
+                <td>{funcionario.idFuncionario}</td>
+                <td>{funcionario.nome}</td>
+                <td>{funcionario.cpf}</td>
+                <td>{funcionario.telefone}</td>
+                <td>{funcionario.cargo}</td>
                 <td>
-                    <button>Excluir</button>
-                    <button>Editar</button>
+                    <button onClick={()=>{excluirFuncionario(funcionario.idFuncionario);}}>Excluir</button>
+                    <button onClick={() => { editarFuncionario(funcionario); }}>Editar</button>
                 </td>
             </tr>
         );
@@ -56,10 +129,11 @@ function Cadastros() {
         const linhasDaTabela = [];
         for (let i = 0; i < funcionarios.length; i++) {
             const funcionario = funcionarios[i];
-            linhasDaTabela[i] = getLinha(funcionario.idFuncionario, funcionario.nome, funcionario.cpf, funcionario.cargo, funcionario.telefone, funcionario.dataAdmissao);
+            linhasDaTabela[i] = getLinha(funcionario);
         }
         return linhasDaTabela;
     }
+    
 
     function getTabela() {
         return (
@@ -79,15 +153,28 @@ function Cadastros() {
     }
 
 
+    function getConteudo() {
+        if (funcionario == null) {
+            return (
+                <>
+                    <button onClick={() => { novoFuncionario(); }}>Novo</button>
+                    {getTabela()}
+                </>
+            );
+
+        } else {
+            return getFormulario();
+        }
+    }
 
     return (
         <div>
             <h1>Formulário cadastro de Funcionarios</h1>
-            {getFormulario()}
-            {getTabela()}
+            {getConteudo()}
         </div>
 
     );
+
 }
 
 export default Cadastros;
